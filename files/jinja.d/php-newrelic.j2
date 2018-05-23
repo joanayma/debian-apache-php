@@ -1,0 +1,10 @@
+{% if 'true' in PHP_ENABLE_NEWRELIC %}
+{% if NEWRELIC_LICENSE is defined %}
+{% if NEWRELIC_APPNAME is defined %}
+extension = "newrelic.so"
+[newrelic]
+newrelic.license="{{ NEWRELIC_LICENSE }}"
+newrelic.appname="{{ NEWRELIC_APPNAME }}"
+newrelic.daemon.dont_launch = 3
+newrelic.daemon.port="/tmp/newrelic/.newrelic.sock"
+{% endif %} {% endif %} {% endif %}

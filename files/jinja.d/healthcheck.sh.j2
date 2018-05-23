@@ -1,0 +1,4 @@
+#!/bin/sh
+# Wrapper from a jinja template. 
+# Use it for healthcheck this container from itself.
+curl -A "docker/healthcheck" -f http://localhost/{{ HEALTHCHECK_PATH }}

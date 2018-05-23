@@ -1,0 +1,9 @@
+Running 1s test @ http://127.0.0.1/
+  1 threads and 1 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.98ms    7.18ms  58.04ms   95.91%
+    Req/Sec     1.77k   326.13     2.14k    72.73%
+  1940 requests in 1.10s, 670.66KB read
+  Non-2xx or 3xx responses: 1940
+Requests/sec:   1763.30
+Transfer/sec:    609.58KB

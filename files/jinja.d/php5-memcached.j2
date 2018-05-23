@@ -1,0 +1,4 @@
+{% if PHP_MEMCACHED_HOST is defined %}
+session.save_handler = memcached
+session.save_path = "{{ PHP_MEMCACHED_HOST }}:11211"
+{% endif %}

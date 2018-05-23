@@ -1,0 +1,67 @@
+[unix_http_server]
+file=/tmp/supervisor.sock   ; (the path to the socket file)
+
+[supervisord]
+logfile=/dev/stdout
+logfile_maxbytes=0
+loglevel=info                ; (log level;default info; others: debug,warn,trace)
+pidfile=/tmp/supervisord.pid ; (supervisord pidfile;default supervisord.pid)
+nodaemon=true                ; (start in foreground if true;default false)
+minfds=1024                  ; (min. avail startup file descriptors;default 1024)
+minprocs=200                 ; (min. avail process descriptors;default 200)
+user=root	        	     ;
+
+[include]
+files = /etc/supervisor/conf.d/*.conf
+
+[rpcinterface:supervisor]
+supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
+
+[supervisorctl]
+serverurl=unix:///tmp/supervisor.sock ; use a unix:// URL  for a unix socket
+
+{% if PHP_VERSION|int == 5 %} {% set PHPFPM_COMMAND = "php5-fpm -F" %}
+{% elif  PHP_VERSION|int == 7 %} {% set PHPFPM_COMMAND = "php-fpm7.0 -F" %}
+{% else %} {% set PHPFPM_COMMAND = "false" %} {% set PHPFPM_AUTOSTART = "false" %}
+{% endif %}
+
+{% if "true" in PHPFPM_AUTOSTART %}
+[program:php-fpm]
+command={{ PHPFPM_COMMAND }}
+process_name=php-fpm
+autostart={{ PHPFPM_AUTOSTART }}
+autorestart={{ PHPFPM_AUTOSTART }}
+priority=5
+stopsignal=QUIT
+stopasgroup=true
+killasgroup=true
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+{% endif %}
+
+[program:apache]
+command=apache2ctl -D FOREGROUND
+process_name=apache
+autostart=true
+autorestart=true
+priority=5
+stopsignal=TERM
+stopwaitsecs=10
+stopasgroup=true
+killasgroup=true
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+
+[eventlistener:worker_exit]
+command=/root/kill-supervisor.py
+process_name=php-fpm
+events=PROCESS_STATE_EXITED
+
+[eventlistener:worker_exit]
+command=/root/kill-supervisor.py
+process_name=apache
+events=PROCESS_STATE_EXITED

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+supervisord -c /etc/supervisor/supervisord.conf 1>&2 &
+i=30
+WRK_FILENAME=${WRK_FILENAME:-"wrk1.wrk"}
+
+echo "[wrk] Output file is: /tmp/perf-reports/$WRK_FILENAME"
+echo "waiting for services to start" 1>&2
+sleep 3
+while ([[ $i > 1 ]] && supervisorctl status | grep -v RUNNING) ; do
+   echo "waiting for services to start" 1>&2
+   sleep 3
+done
+
+wrk $@ > /tmp/perf-reports/$WRK_FILENAME

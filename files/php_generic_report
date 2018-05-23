@@ -1,0 +1,25 @@
+#!/bin/bash
+# PHP lint first version
+# TODO: Options for enforce exit on error
+
+set -o pipefail
+
+[[ -d $1 ]] && export directory=$1 || export directory=$APACHE_DOCUMENTROOT/..
+
+echo "[phplint] PHP lint on $directory ..."
+find $directory -name '*.php' -exec echo -n "[phplint] " \; -exec php -l {} \; | (grep -v 'No syntax error' || true)
+
+echo "[phpcs] PHP CodeSniffer on $directory ..."
+phpcbf $directory; phpcs -n -q --colors --standard=PSR1 --report=checkstyle --report-file=/tmp/test-reports/phphcs_generic_report.xml $directory || true
+
+echo "[phploc] PHP code lines report..."
+phploc --log-xml=/tmp/test-reports/phploc_generic_report.xml -n $directory || true
+
+echo "[phpmetrics] PHP Metrics report..."
+phpmetrics --report-violations=/tmp/test-reports/phpmetrics_generic_report.xml $directory || true
+
+echo "[phpmd] PHP Mess Detector..."
+phpmd --reportfile=/tmp/test-reports/phpmd_generic_report.xml $directory xml cleancode || true
+
+echo "[phpstan] PHP Static Analysis Tool..."
+phpstan analyse -l 5 $directory || true

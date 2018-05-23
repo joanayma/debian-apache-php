@@ -1,0 +1,16 @@
+<Location {{ APACHE_STATUS_PATH|default("/server-status") }}>
+        RewriteEngine off
+	SetHandler server-status
+        {%- if MONITOR_PASSWD is defined %}
+        Require expr %{QUERY_STRING}  =~ m#password={{ MONITOR_PASSWD }}#
+        {%- else %}
+	Require local
+        Require ip 100.64.0.0/10
+        Require ip 172.16.0.0/12
+        Require ip 10.0.0.0/8
+        Require ip 192.168.0.0/16 
+        {%- endif %}
+</Location>
+
+ExtendedStatus On
+ProxyStatus On

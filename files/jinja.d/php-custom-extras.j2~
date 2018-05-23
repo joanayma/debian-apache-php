@@ -1,0 +1,13 @@
+{% if PHP_ENABLE_SHORT_OPEN_TAG is defined %}{% if 'true' in PHP_ENABLE_SHORT_OPEN_TAG %}
+short_open_tag = On
+{% endif %}{% endif %}
+
+{% if PHP_MEM_LIMIT is defined %}
+memory_limit = {{ PHP_MEM_LIMIT }}
+{% elif PHPFPM_MEM_LIMIT is defined %}
+memory_limit = {{ PHPFPM_MEM_LIMIT }}
+<<<<<<< HEAD
+{% endif %}
+=======
+{% endif %}
+>>>>>>> 0e5dc49a875ca94846b7d1455a77072fb8b620a8

@@ -1,0 +1,61 @@
+Mutex file:${APACHE_LOCK_DIR} default
+PidFile ${APACHE_PID_FILE}
+Timeout {{ APACHE_TIMEOUT }}
+KeepAlive {{ APACHE_KEEPALIVE }}
+MaxKeepAliveRequests {{ KEEPALIVE_MAX_REQUESTS }}
+KeepAliveTimeout {{ KEEPALIVE_TIMEOUT }}
+User ${APACHE_RUN_USER}
+Group ${APACHE_RUN_GROUP}
+HostnameLookups Off
+ErrorLog {{ APACHE_ERRORLOG_PATH|default("/dev/stderr") }}
+LogLevel warn
+IncludeOptional mods-enabled/*.load
+IncludeOptional mods-enabled/*.conf
+Include ports.conf
+<Directory />
+	Options FollowSymLinks
+{%- if 'true' in APACHE_22_COMPAT %}
+        AllowOverride All
+        Require all granted
+{%- else %}
+	AllowOverride None
+	Require all granted
+{%- endif %}
+</Directory>
+<Directory /usr/share>
+	AllowOverride None
+	Require all granted
+</Directory>
+<Directory /var/www/>
+	Options Indexes FollowSymLinks
+</Directory>
+AccessFileName .htaccess
+<FilesMatch "^\.ht">
+	Require all denied
+</FilesMatch>
+<IfModule mod_fcgid.c>
+        # Fcgi timeout should be equal to php max_execution_time
+        FcgidIOTimeout {{ PHP_MAX_EXEC_TIME }}
+</IfModule>
+LogFormat "%v:%p %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" vhost_combined
+LogFormat "%a %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" combined
+LogFormat "%a %l %u %t \"%r\" %>s %O" common
+LogFormat "%{Referer}i -> %U" referer
+LogFormat "%{User-agent}i" agent
+CustomLog {{ APACHE_LOG_PATH|default("/dev/stdout") }} vhost_combined
+IncludeOptional conf-enabled/*.conf
+IncludeOptional sites-enabled/*.conf
+{%- if APACHE_HTTP_FORWARDED_PROTO is defined %}
+SetEnvIfNoCase x-forwarded-proto https HTTPS=on REQUEST_SCHEME=https SERVER_PORT=443
+{%- endif %}
+{% if 'true' in APACHE_ENABLE_CSP %}
+Header set Content-Security-Policy "{{ APACHE_CSP_HEADER }}"
+{% endif %}
+{% if 'true' in APACHE_ENABLE_HSTS %}
+Header set Strict-Transport-Security "max-age={{ APACHE_HSTS_MAXAGE }}"
+{% endif %}
+{% if APACHE_ENABLE_CORS is defined and 'true' in APACHE_ENABLE_CORS %}
+Header set Access-Control-Allow-Origin {{ APACHE_CORS_ORIGIN|default("*") }}
+{% endif %}
+ServerSignature Off
+ServerTokens Prod

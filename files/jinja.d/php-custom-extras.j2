@@ -1,0 +1,48 @@
+{% if PHP_ENABLE_SHORT_OPEN_TAG is defined %}{% if 'true' in PHP_ENABLE_SHORT_OPEN_TAG %}
+short_open_tag = On
+{% endif %}{% endif %}
+
+{% if PHP_MEM_LIMIT is defined %}
+memory_limit = {{ PHP_MEM_LIMIT }}
+{% elif PHPFPM_MEM_LIMIT is defined %}
+memory_limit = {{ PHPFPM_MEM_LIMIT }}
+{% endif %}
+
+{% if PHP_POST_MAX_SIZE is defined %}
+post_max_size = {{ PHP_POST_MAX_SIZE }}
+{% endif %}
+
+{% if PHP_UPLOAD_MAX_FILESIZE is defined %}
+upload_max_filesize = {{ PHP_UPLOAD_MAX_FILESIZE }}
+{% else %}
+upload_max_filesize = 20M
+{% endif %}
+
+{% if PHP_MAX_FILE_UPLOADS is defined %}
+max_file_uploads = {{ PHP_MAX_FILE_UPLOADS }}
+{% else %}
+max_file_uploads = 20
+{% endif %}
+
+{% if PHP_DISPLAY_ERRORS is defined and 'true' in PHP_DISPLAY_ERRORS %}
+display_errors = On
+display_startup_errors = Off
+{% else %}
+display_errors = Off
+display_startup_errors = Off
+{% endif %}
+
+{% if PHP_MAX_EXECUTION_TIME is defined %}
+max_execution_time = {{ PHP_MAX_EXECUTION_TIME }}
+{% endif %}
+
+log_errors = {% if PHP_LOG_ERRORS is defined %} {{ PHP_LOG_ERRORS }} {% else %}  {{ PHPFPM_LOG_ERRORS }} {% endif %}
+error_log = {% if PHP_ERROR_LOG_PATH is defined %} {{ PHP_ERROR_LOG_PATH }} {% else %} {{ PHPFPM_ERROR_LOG_PATH }} {% endif %}
+
+### Security enhancements starts here
+
+{% if PHP_SECURITY is defined and 'true' in PHP_SECURITY or SECURITY_BY_DEFAULT is defined and 'true' in SECURITY_BY_DEFAULT or PHP_DISABLE_FUNCTIONS_LIST is defined %}
+disable_functions = {{ PHP_DISABLE_FUNCTIONS_LIST|default("exec,passthru,shell_exec,system,proc_open,popen,parse_ini_file,show_source") }}
+{% endif %}
+
+### Security enhancements ends here

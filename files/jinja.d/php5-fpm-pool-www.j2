@@ -1,0 +1,56 @@
+[www]
+;prefix = /path/to/pools/$pool
+user = www-data
+group = www-data
+{%- if PHPFPM_ENABLE_TCP == "true" %}
+listen = 127.0.0.1:{{ PHPFPM_TCP_PORT }}
+{%- else %}
+listen = /var/run/php5-fpm.sock
+{%- endif %}
+listen.backlog = 65535
+listen.owner = www-data
+listen.group = www-data
+;listen.mode = 0660
+;listen.acl_users =
+;listen.acl_groups =
+;listen.allowed_clients = 127.0.0.1
+; process.priority = -19
+pm = {{ PHPFPM_PROC_MANAGER }}
+pm.max_children = {{ PHPFPM_MAX_CHILDREN }}
+pm.start_servers = {{ PHPFPM_START_SERVERS }}
+pm.min_spare_servers = {{ PHPFPM_MIN_SPARE_SERVERS }}
+pm.max_spare_servers = {{ PHPFPM_MAX_SPARE_SERVER }}
+pm.process_idle_timeout = {{ PHPFPM_PROC_IDLE_TIMEOUT }}
+pm.max_requests = {{ PHPFPM_MAX_REQUESTS }}
+;   request URI:          /test_mem.php?N=10000
+pm.status_path = {{ PHPFPM_STATUS_PATH }}
+;ping.path = /ping
+;ping.response = pong
+;access.log = log/$pool.access.log
+;access.format = "%R - %u %t \"%m %r%Q%q\" %s %f %{mili}d %{kilo}M %C%%"
+;slowlog = log/$pool.log.slow
+;request_slowlog_timeout = 0
+;request_terminate_timeout = 0
+;rlimit_files = 1024
+;rlimit_core = 0
+;chroot = 
+chdir = /
+;catch_workers_output = yes
+;clear_env = no
+;security.limit_extensions = .php .php3 .php4 .php5
+;env[HOSTNAME] = $HOSTNAME
+;env[PATH] = /usr/local/bin:/usr/bin:/bin
+;env[TMP] = /tmp
+;env[TMPDIR] = /tmp
+;env[TEMP] = /tmp
+;php_admin_value[sendmail_path] = /usr/sbin/sendmail -t -i -f www@my.domain.com
+;php_flag[display_errors] = off
+php_admin_value[error_log] = {{ PHPFPM_ERROR_LOG_PATH }}
+php_admin_flag[log_errors] = {{ PHPFPM_LOG_ERRORS }}
+php_admin_value[memory_limit] = {{ PHPFPM_MEM_LIMIT }}
+php_admin_value[max_execution_time] = {{ PHP_MAX_EXEC_TIME }}
+{% if PHP_ENABLE_SHORT_OPEN_TAG is defined %}{% if 'true' in PHP_ENABLE_SHORT_OPEN_TAG %}
+php_admin_value[short_open_tag] = true
+{% endif %}{% endif %}
+php_admin_value[max_input_vars] = {{ PHP_MAX_INPUT_VARS }}
+include = /etc/php5/fpm/pool.d/include.d/*.conf

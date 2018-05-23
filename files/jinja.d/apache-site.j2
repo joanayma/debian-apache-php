@@ -1,0 +1,75 @@
+<VirtualHost *:80>
+	ServerAdmin webmaster@localhost
+	DocumentRoot {{ APACHE_DOCUMENTROOT }}
+        {%- if APACHE_VH_ALIAS is defined %}
+         {%- set alias_list = APACHE_VH_ALIAS.split(":") %}
+         {%- for alias in alias_list %}
+         {%- if alias != "/" %}
+        Alias {{ alias }} {{ APACHE_DOCUMENTROOT }}
+         {%- endif %}
+         {%- endfor %}
+        {%- endif %}
+        <Directory {{ APACHE_DOCUMENTROOT }}>
+           Options -Indexes +FollowSymLinks +MultiViews +Includes
+           AllowOverride All
+           Order allow,deny
+           allow from all
+        {% if APACHE_ENABLE_BADBOTS is defined and 'true' in APACHE_ENABLE_BADBOTS %}
+           Include /etc/apache2/custom.d/globalblacklist.conf
+        {% endif %}
+       </Directory>
+
+        {% if 'true' in APACHE_ENABLE_CSP %}
+        Header set Content-Security-Policy "{{ APACHE_CSP_HEADER }}"
+        {% endif %}
+        {% if 'true' in APACHE_ENABLE_HSTS %}
+        Header set Strict-Transport-Security "max-age={{ APACHE_HSTS_MAXAGE }}"
+        {% endif %}
+
+        {% if 'true' in WP_DISABLE_XMLRPC %}
+        <Files xmlrpc.php>
+		order deny,allow
+		deny from all
+                allow from 100.64.0.0/10
+                allow from 172.16.0.0/12
+                allow from 10.0.0.0/8
+                allow from 192.168.0.0/16
+		{%- if WP_XMLRPC_IP is defined %}allow from {{ WP_XMLRPC_IP }}{%- endif %}
+	</Files>
+        {% endif %}
+
+        {% if 'true' in APACHE_ENABLE_EXPIRES %}
+        <ifmodule mod_expires.c>
+            ExpiresDefault "{{ APACHE_EXPIRES_DEFAULT_TIME }}"
+            <Filesmatch "{{ APACHE_EXPIRES_STATICFILES_REGEX }}">
+                ExpiresActive on
+                ExpiresDefault "{{ APACHE_EXPIRES_STATICFILES_TIME }}"
+                Header append Cache-Control "public"
+            </Filesmatch>
+        </ifmodule>
+        {% endif %}
+
+        SetEnvIf Request_URI "{{ HEALTHCHECK_PATH }}" dontlog
+        SetEnvIf Request_URI "/phpfpm-status.*" dontlog
+        SetEnvIf Request_URI "{{ INFO_PATH|default("/_info") }}" dontlog
+        SetEnvIf Request_URL "/server-status.*" dontlog
+        SetEnvIf Remote_Addr "127\.0\.0\.1" dontlog
+	ErrorLog {{ APACHE_ERRORLOG_PATH|default("/dev/stderr") }}
+	CustomLog {{ APACHE_LOG_PATH|default("/dev/stdout") }} combined env=!dontlog
+
+        {%- if APACHE_HTTP_FORWARDED_PROTO is defined or FORCE_SSL is defined and 'true' in FORCE_SSL %}
+        SetEnvIfNoCase x-forwarded-proto https HTTPS=on REQUEST_SCHEME=https SERVER_PORT=443
+        {%- endif %}
+
+        {%- if FORCE_SSL is defined and 'true' in FORCE_SSL %}
+        RewriteEngine On
+        RewriteCond %{HTTP:X-Forwarded-Proto} =http
+        RewriteRule .* https://%{HTTP:Host}%{REQUEST_URI} [L,R=permanent]
+        {%- endif %}
+
+        {% if APACHE_SETENV is defined %}
+        {% for item in APACHE_SETENV.split(",") %}
+        SetEnv {{ item.split(":")[0] }} {{ item.split(":")[1] }}
+        {% endfor %}{% endif %}
+
+</VirtualHost>

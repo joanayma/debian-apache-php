@@ -1,0 +1,57 @@
+{% if 'true' in APACHE_ENABLE_SSL %}
+{% if APACHE_SSL_CERT is defined %}
+{% if APACHE_SSL_KEY is defined %}
+
+<VirtualHost *:80>
+	ServerAdmin webmaster@localhost
+	DocumentRoot {{ APACHE_DOCUMENTROOT }}
+        <Directory {{ APACHE_DOCUMENTROOT }}>
+           Options -Indexes +FollowSymLinks +MultiViews
+           AllowOverride All
+           Order allow,deny
+           allow from all
+       </Directory>
+
+        {% if 'true' in APACHE_ENABLE_CSP %}
+        Header set Content-Security-Policy "{{ APACHE_CSP_HEADER }}"
+        {% endif %}
+        {% if 'true' in APACHE_ENABLE_HSTS %}
+        Header set Strict-Transport-Security "max-age={{ APACHE_HSTS_MAXAGE }}"
+        {% endif %}
+
+        SSLEngine on
+        SSLCertificateFile {{ APACHE_SSL_CERT }}
+        SSLCertificateKeyFile {{ APACHE_SSL_KEY }}
+        {% if APACHE_SSL_CHAIN is defined %}
+        SSLCertificateChainFile {{ APACHE_SSL_CHAIN }}
+        {% endif %}
+
+        {% if 'true' in WP_DISABLE_XMLRPC %}
+        <Files xmlrpc.php>
+		order deny,allow
+		deny from all
+                allow from 127
+                allow from 172
+		{%- if WP_XMLRPC_IP is defined %}allow from {{ WP_XMLRPC_IP }}{%- endif %}
+	</Files>
+        {% endif %}
+
+        {% if 'true' in APACHE_ENABLE_EXPIRES %}
+        <ifmodule mod_expires.c>
+            ExpiresDefault "{{ APACHE_EXPIRES_DEFAULT_TIME }}"
+            <Filesmatch "{{ APACHE_EXPIRES_STATICFILES_REGEX }}">
+                ExpiresActive on
+                ExpiresDefault "{{ APACHE_EXPIRES_STATICFILES_TIME }}"
+                Header append Cache-Control "public"
+            </Filesmatch>
+        </ifmodule>
+        {% endif %}
+
+	ErrorLog /dev/stderr
+	CustomLog /dev/stdout combined
+
+</VirtualHost>
+
+{% endif %}
+{% endif %}
+{% endif %}

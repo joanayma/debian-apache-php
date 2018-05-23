@@ -1,0 +1,9 @@
+<IfModule mpm_event_module>
+	StartServers			 {{ APACHE_START_SERVERS }}
+	MinSpareThreads		 {{ APACHE_MIN_SPARE_THREADS }}
+	MaxSpareThreads		 {{ APACHE_MAX_SPARE_THREADS }}
+	ThreadLimit			 {{ APACHE_THREAD_LIMIT }}
+	ThreadsPerChild		 {{ APACHE_THREADS_PER_CHILD }}
+	MaxRequestWorkers	  {{ APACHE_MAX_REQUEST_WORKERS }}
+	MaxConnectionsPerChild   {{ APACHE_MAX_CONNECTIONS_PER_CHILD }}
+</IfModule>
