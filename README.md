@@ -3,8 +3,7 @@ debian-apache-php
 
 Container with apache and php.
 
-Disclamer
----------
+### Disclamer ###
 
 This container is **deprecated**. Next project is a onbuild image with a paramenters structured-data argument to build an image with all
 the options.
@@ -28,12 +27,11 @@ Features
 
 Options
 -------
-Options works with enviornment variables with jinja templates and docker entrypoint.
+Options works with environment variables with jinja templates and docker entrypoint.
 
- - On build:
-To enable this options on build add after envvars in Dockerfile: `RUN /root/entrypoint.sh true`
+To enable this options on build add after envvars in Dockerfile: `RUN cmd_wrapper true`
 
-### Explained options: ###
+### Explained options ###
 
  - __TZ__: Use defined timezone (i.e.: `Europe/Madrid`) in this container.
  - __MONITOR_PASSWD__: Define a password for `PHPFPM_STATUS_PATH` (defaults to /phpfpm-status) and `APACHE_STATUSPATH` (defaults to /server-status). Example:
@@ -60,7 +58,7 @@ To enable this options on build add after envvars in Dockerfile: `RUN /root/entr
      or
      ```environment:
          APACHE_SETENV:|
-           key1: value1
+           key1: value1,
            keyN: valueM
      ```
    Notice `,` for split every envvar and `:` to split key:value.
@@ -114,7 +112,7 @@ In some cases we need another php-fpm backend, for example php 5.3. We need to u
 
 To do this, define a docker compose with:
 
-```
+```yaml
 version: 2
 services:
 [...]
@@ -146,7 +144,7 @@ Do not quote the envvars.
 
 In a docker-compose, we define this:
 
-```
+```yaml
 version: 2
 services:
 [...]
@@ -175,7 +173,7 @@ services:
 
 #### Full options and defaults follows: ####
 
-```
+```bash
 # Entrypoints options:
  DO_JINJA true
  DO_INIT true (/container-init.d/ scripts)
@@ -265,7 +263,7 @@ Label: registry.gitlab.com/joanayma/debian-apache-php:v1
 
  * docker-compose.yml with defaults configs:
 
-```
+```yaml
 apache-php:
     container_name: apache-php
     image: registry.gitlab.com/joanayma/debian-apache-php:v2
@@ -279,7 +277,7 @@ apache-php:
 
  * docker-compose.yml with some configs:
 
-```
+```yaml
 apache-php:
     container_name: apache-php
     image: registry.gitlab.com/joanayma/debian-apache-php:v2
@@ -293,4 +291,30 @@ apache-php:
         - APACHE_ENABLE_CSP true
         - APACHE_DOCUMENTROOT /var/www/httpdocs/web
 
+```
+
+Dockerfile
+----------
+
+To generate an image without all the compile/config time and push a custom image with this runtime.
+
+```Dockerfile
+FROM registry.gitlab.com/joanayma/debian-apache-php:latest
+COPY source/phpweb/. /var/www/httpdocs/.
+
+# Configuration via envvars
+ENV MONITOR_PASSWORD="a-256bits-password" \
+    SECURITY_BY_DEFAULT="true" \
+    PHP_VERSION="7" \
+    APACHE_DOCUMENTROOT="/var/www/httpdocs" \
+    APACHE_ENABLE_CORS="true" \
+    APACHE_CORS_ORIGIN="*.myapp.com"
+
+# This will "make" the runtime
+RUN cmd_wrapper echo Compile time
+# example: do some wrk performance testing
+RUN wrk_wrapper -t1 -c10 -d10s
+
+# Finally disable configuration on run time
+ENV DO_JINJA="false"
 ```
