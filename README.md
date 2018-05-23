@@ -3,6 +3,12 @@ debian-apache-php
 
 Container with apache and php.
 
+Disclamer
+---------
+
+This container is **deprecated**. Next project is a onbuild image with a paramenters structured-data argument to build an image with all
+the options.
+
 Features
 ========
 - Select between php fpm or apache module.
