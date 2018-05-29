@@ -42,6 +42,7 @@ To enable this options on build add after envvars in Dockerfile: `RUN cmd_wrappe
  - __PHP_SESS_MEMCACHED_HOST__ (formerly __PHP_MEMCACHED_HOST__): If defined, enables memcached sessions backend and use defined as host. Port is always 11211.
  - __PHP_SESS_REDIS_HOST__): If defined, enables redis sessions as php sessions backend. Port is always 6379.
  - __PHP_MAX_EXEC_TIME__: Defaults to 60. Used by php `max_execution_time` and apache2 server `FcgidIOTimeoute`. Setted equal because those two values must be: `apache2(FcgidIOTimeoute) >= php(max_execution_time)`.
+ - __PHP_DEBUG__: For development. Use this envvar with TRACE|PROFILE|REMOTE values to enable xdebug.
  - __APACHE_ENABLE_BADBOTS__: Enables bad bots/referrers. Follow [`apache-ultimate-bad-bot-blocker`](https://github.com/mitchellkrogza/apache-ultimate-bad-bot-blocker/) for more information and custom adds.
  - __APACHE_ENABLE_HSTS__: HSTS header. Read more on [`HSTS`](https://es.wikipedia.org/wiki/HTTP_Strict_Transport_Security). MAXAGE is 3600 by default, and APACHE_HSTS_MAXAGE may be set to 31536000 on production.
  - __APACHE_ENABLE_CSP__: Content-Security-Policy header. Read more on [`CSP`](https://content-security-policy.com).
@@ -79,6 +80,15 @@ There are some security related variables.
     - Adds bad php functions with php `disable_functions`. Defaults to: `exec,passthru,shell_exec,system,proc_open,popen,parse_ini_file,show_source` or uses `PHP_DISABLE_FUNCTIONS_LIST` to populate the list.
  - __PHP_SECURITY__: Adds security enhancements. Look for php `SECURITY_BY_DEFAULT` defitions.
  - __DISABLE_WP_XMLRPC__: Disable XMLRPC to wordpress on apache. Enabled by default.
+
+### Xdebug ###
+
+__NOT_FINISHED__
+
+Using `PHP_DEBUG` environment you can configure xdebug to initialize with some basic configuration. Next are the values for the environment variable:
+ - TRACE: Will output errors and stack traces for errors.
+ - PROFILE: Will generate reports on /tmp/php-xdebug-profiles/.
+ - REMOTE: (Not finished) Will generate a open remote connection on 9000 port. Use IDE like sublime text.
 
 Commands
 --------
