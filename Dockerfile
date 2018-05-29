@@ -1,7 +1,7 @@
 FROM debian:jessie-slim
 
 MAINTAINER Joan Aymà <joan.ayma@gmail.com>
-LABEL name="registry.gitlab.com/joanayma/debian-apache-php:v3"
+LABEL name="registry.gitlab.com/joanayma/debian-apache-php:latest"
 LABEL description=""
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -32,7 +32,7 @@ RUN mv /etc/apt/sources.list.d/php-sury.gpg /etc/apt/trusted.gpg.d/ && \
            php7.0-opcache php7.0-readline php7.0-mbstring php7.0-intl php7.0-redis \
            php7.0-gd php7.0-mysql php7.0-curl php7.0-zip php7.0-dev php7.0-soap php7.0-zip \
            php7.0-mcrypt php7.0-xsl php7.0-soap php7.0-pgsql php7.0-tidy \
-           php7.0-memcache php7.0-memcached \
+           php7.0-memcache php7.0-memcached php-xdebug \
 
            supervisor python-pip git patch ssh-client ssl-cert make \
            drush mysql-client less phpunit zip vim curl wget && \
@@ -76,6 +76,7 @@ RUN \
    a2enmod proxy ssl proxy_http proxy_balancer && \
    a2enmod actions proxy_fcgi alias expires rewrite headers auth_basic geoip && \
    a2enconf php5-fpm && \
+   phpdismod xdebug && \
    # Enforce noone writes log apache2 logfiles
    a2disconf other-vhosts-access-log && \
    ln -sf /dev/stdout /var/log/apache2/access.log && \

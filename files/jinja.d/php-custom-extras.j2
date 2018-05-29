@@ -46,3 +46,50 @@ disable_functions = {{ PHP_DISABLE_FUNCTIONS_LIST|default("exec,passthru,shell_e
 {% endif %}
 
 ### Security enhancements ends here
+
+### Xdebug ###
+{% if PHP_DEBUG is defined %}
+{% if "PROFILE" in PHP_DEBUG %}
+
+xdebug.profiler_append=0
+xdebug.profiler_enable=0
+xdebug.profiler_enable_trigger=1
+xdebug.profiler_output_dir=/tmp/php-xdebug-profiles/
+xdebug.profiler_output_name=callgrind.%H.%t
+
+{% elif "TRACE" in PHP_DEBUG %}
+
+xdebug.overload_var_dump=1
+xdebug.var_display_max_children=-1
+xdebug.var_display_max_data=-1
+xdebug.var_display_max_depth=-1
+xdebug.collect_params=4
+xdebug.collect_vars=1
+xdebug.dump.COOKIES=*
+xdebug.dump.FILES=*
+xdebug.dump.GET=*
+xdebug.dump.POST=*
+xdebug.dump.REQUEST=*
+xdebug.dump.SERVER=*
+xdebug.dump.SESSION=*
+xdebug.dump_globals=1
+xdebug.dump_once=0
+xdebug.dump_undefined=1
+xdebug.scream=1
+xdebug.show_local_vars=1
+
+{% elif "REMOTE" in PHP_DEBUG %}
+xdebug.extended_info=1
+xdebug.idekey="sublime.xdebug"
+xdebug.remote_autostart=0
+xdebug.remote_connect_back=1
+xdebug.remote_cookie_expire_time=3600
+xdebug.remote_enable=1
+xdebug.remote_handler="dbgp"
+xdebug.remote_mode=req
+xdebug.remote_port=9000
+
+{% endif %}
+{% endif %}
+
+### Xdebug ###
