@@ -20,8 +20,8 @@ supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
 [supervisorctl]
 serverurl=unix:///tmp/supervisor.sock ; use a unix:// URL  for a unix socket
 
-{% if PHP_VERSION|int == 5 %} {% set PHPFPM_COMMAND = "php5-fpm -F" %}
-{% elif  PHP_VERSION|int == 7 %} {% set PHPFPM_COMMAND = "php-fpm7.0 -F" %}
+{% if PHP_VERSION|int == 5 %} {% set PHPFPM_COMMAND = "php-fpm5.6 -F" %}
+{% elif  PHP_VERSION|int == 7 %} {% set PHPFPM_COMMAND = "php-fpm7.2 -F" %}
 {% else %} {% set PHPFPM_COMMAND = "false" %} {% set PHPFPM_AUTOSTART = "false" %}
 {% endif %}
 
@@ -65,3 +65,20 @@ events=PROCESS_STATE_EXITED
 command=/root/kill-supervisor.py
 process_name=apache
 events=PROCESS_STATE_EXITED
+
+{% if ENABLE_CROND is defined and "true" in ENABLE_CROND %}
+[program:go-crond]
+command=go-crond --include=/etc/cron.d/ --verbose root:/root/cron www-data:/var/www/cron
+process_name=go-crond
+autostart=true
+autorestart=true
+priority=5
+stopsignal=TERM
+stopwaitsecs=10
+stopasgroup=true
+killasgroup=true
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+{% endif %}

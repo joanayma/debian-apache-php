@@ -1,1 +1,7 @@
-Alias {{ INFO_PATH|default("/_info") }} /usr/local/info.php
+Alias {{ INFO_PATH|default("/_infoz") }} /usr/local/info.php
+{%- if MONITOR_PASSWD is defined %}
+<LocationMatch "{{ INFO_PATH|default("/_infoz") }}">
+   Require expr %{QUERY_STRING}  =~ m#password={{ MONITOR_PASSWD }}#
+</LocationMatch>
+{%- else %}
+{%- endif %}

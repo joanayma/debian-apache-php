@@ -1,43 +1,44 @@
-FROM debian:jessie-slim
+FROM debian:stretch-slim
 
 MAINTAINER Joan Aymà <joan.ayma@gmail.com>
-LABEL name="registry.gitlab.com/joanayma/debian-apache-php:latest"
-LABEL description=""
+LABEL image_base="registry.gitlab.com/joanayma/debian-apache-php:v4"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 # APT conf files
 COPY \
-   files/apt/*.list   \
-   files/apt/php-sury.gpg    \
+   files/apt/*.list       \
+   files/apt/php-sury.gpg \
+   files/apt/newrelic.gpg \
    /etc/apt/sources.list.d/
 
 # Configure APT and install dependencies
 RUN mv /etc/apt/sources.list.d/php-sury.gpg /etc/apt/trusted.gpg.d/ && \
+    mv /etc/apt/sources.list.d/newrelic.gpg /etc/apt/trusted.gpg.d/ && \
     apt update && \
     apt -y --no-install-recommends install apt-transport-https ca-certificates && \
-    echo "deb https://packages.sury.org/php/ jessie main" > /etc/apt/sources.list.d/php.list && \
+    echo "deb https://packages.sury.org/php/ stretch main" > /etc/apt/sources.list.d/php.list && \
     apt update && \
     apt -y --no-install-recommends install \
-           apache2 apache2-mpm-worker libapache2-mod-fastcgi libapache2-mod-proxy-html \
-           libapache2-mod-authnz-external \
-           libapache2-mod-php5 libapache2-mod-geoip php5-fpm \
+           apache2 libapache2-mod-authnz-external libapache2-mod-geoip \
            geoip-database geoip-database-extra \
            
-           php5-json php5-common php5-mysql php5-curl php5-gd php5-redis \
-           php5-mcrypt php5-memcache php5-memcached php5-cli php5-dev php5-intl \ 
-           php5-readline php5.6-mbstring \
+           php5.6 php5.6-fpm php5.6-common libapache2-mod-php5.6 php5.6-mysql php5.6-curl php5.6-cli \
+           php5.6-json php5.6-gd php5.6-redis php5.6-mcrypt php5.6-memcache php5.6-memcached \
+           php5.6-dev php5.6-intl php5.6-readline php5.6-mbstring php5.6-xml php5.6-ldap \
 
-           php7.0 libapache2-mod-php7.0 php7.0-fpm php7.0-xml php7.0-json \
-           php7.0-opcache php7.0-readline php7.0-mbstring php7.0-intl php7.0-redis \
-           php7.0-gd php7.0-mysql php7.0-curl php7.0-zip php7.0-dev php7.0-soap php7.0-zip \
-           php7.0-mcrypt php7.0-xsl php7.0-soap php7.0-pgsql php7.0-tidy \
-           php7.0-memcache php7.0-memcached php-xdebug \
+           php7.2 libapache2-mod-php7.2 php7.2-fpm php7.2-xml php7.2-json \
+           php7.2-opcache php7.2-readline php7.2-mbstring php7.2-intl php7.2-redis \
+           php7.2-gd php7.2-mysql php7.2-curl php7.2-zip php7.2-dev php7.2-soap php7.2-zip \
+           php7.2-xsl php7.2-soap php7.2-pgsql php7.2-tidy \
+           php7.2-memcache php7.2-memcached \
+
+           php-xdebug \
 
            supervisor python-pip git patch ssh-client ssl-cert make \
-           drush mysql-client less phpunit zip vim curl wget && \
+           mysql-client less phpunit zip vim curl wget && \
     rm -rf /var/lib/apt/lists/* /var/cache/archives/*.deb && \
-    pip install j2cli[yaml] && \
+    pip install setuptools && pip install j2cli[yaml] && \
     apt -y purge make
 
 # Apache, PHP, scripts, jinja and healthcheck static files
@@ -49,49 +50,59 @@ RUN \
    # Basic dir & config structure
    mkdir -p /usr/local/scripts && \
    mkdir /var/www/httpdocs && \
-   mv /root/files/etc_services             /etc/services                && \
-   mv /root/files/apache2/envvars          /etc/apache2/                && \
-   mv /root/files/apache2/status.conf      /etc/apache2/mods-enabled/   && \
-   mv /root/files/apache2/php5-fpm.conf    /etc/apache2/conf-available/ && \
-   mv /root/files/php7.0-fpm/php-fpm.conf  /etc/php/7.0/fpm/            && \
-   mv /root/files/php5-fpm/log.ini         /etc/php5/fpm/conf.d/        && \
-   cp /root/files/php5-fpm/80-extras.ini   /etc/php5/fpm/conf.d/        && \
-   mv /root/files/php5-fpm/80-extras.ini   /etc/php/7.0/fpm/conf.d/     && \
-   mv /root/files/kill-supervisor.py       /root/                       && \
-   mv /root/files/entrypoint.sh            /root/                       && \
-   mv /root/files/jinja.d                  /root/                       && \
-   mv /root/files/healthcheck.php          /usr/local/                  && \
-   mv /root/files/php_generic_report       /usr/local/bin/              && \
-   mv /root/files/vimrc                    /root/.vimrc                 && \
-   mv /root/files/bashrc                   /root/.bashrc                && \
-   mv /root/files/wrk                      /usr/local/bin/wrk           && \
-   mv /root/files/wrk_wrapper              /usr/local/bin/wrk_wrapper   && \
-   mv /root/files/cmd_wrapper              /usr/local/bin/cmd_wrapper   && \
+   mv /root/files/etc_services             /etc/services                    && \
+   mv /root/files/apache2/envvars          /etc/apache2/                    && \
+   mv /root/files/apache2/status.conf      /etc/apache2/mods-enabled/       && \
+   mv /root/files/apache2/php5-fpm.conf    /etc/apache2/conf-available/     && \
+   mv /root/files/php7.2-fpm/php-fpm.conf  /etc/php/7.2/fpm/                && \
+   mv /root/files/php5-fpm/log.ini         /etc/php/5.6/fpm/conf.d/         && \
+   cp /root/files/php5-fpm/80-extras.ini   /etc/php/5.6/fpm/conf.d/         && \
+   mv /root/files/php5-fpm/80-extras.ini   /etc/php/7.2/fpm/conf.d/         && \
+   mv /root/files/kill-supervisor.py       /root/                           && \
+   mv /root/files/entrypoint.sh            /root/                           && \
+   mv /root/files/jinja.d                  /root/                           && \
+   mv /root/files/healthcheck.php          /usr/local/                      && \
+   mv /root/files/php_generic_report       /usr/local/bin/                  && \
+   mv /root/files/vimrc                    /root/.vimrc                     && \
+   mv /root/files/bashrc                   /root/.bashrc                    && \
+   mv /root/files/wrk                      /usr/local/bin/wrk               && \
+   mv /root/files/wrk_wrapper              /usr/local/bin/wrk_wrapper       && \
+   mv /root/files/cmd_wrapper              /usr/local/bin/cmd_wrapper       && \
+   mv /root/files/go-crond_wrapper         /usr/local/bin/go-crond_wrapper  && \
    rm -Rf /root/files   && \
    # Configure some modules through debian scripts
+   a2dismod php5.6      && \
    a2dismod mpm_prefork && \
-   a2dismod php5        && \
    a2enmod mpm_event    && \
    a2enmod remoteip     && \
    a2enmod proxy ssl proxy_http proxy_balancer && \
    a2enmod actions proxy_fcgi alias expires rewrite headers auth_basic geoip && \
-   a2enconf php5-fpm && \
-   phpdismod xdebug && \
+   a2enconf php5.6-fpm  && \
+   phpdismod xdebug     && \
    # Enforce noone writes log apache2 logfiles
    a2disconf other-vhosts-access-log && \
    ln -sf /dev/stdout /var/log/apache2/access.log && \
    ln -sf /dev/stdout /var/log/apache2/error.log && \
+   # add go-crond
+   curl -Lo /usr/local/bin/go-crond \
+      https://github.com/webdevops/go-crond/releases/download/0.6.1/go-crond-64-linux && \
+   chmod +x /usr/local/bin/go-crond && \
+   mkdir -p /root/cron /var/www/cron && \
+   chown www-data:www-data /var/www/cron && \
    # php-composer
    curl -o /tmp/composer https://getcomposer.org/installer && \
    (echo "#!/usr/bin/php"; cat /tmp/composer) > /usr/local/bin/composer-installer && \
    chmod +x /usr/local/bin/composer-installer && \
    composer-installer --install-dir=/usr/bin && \
    rm /tmp/composer && \
-   # wp-cli
+   # drush (drupal cli)
+   curl -L -o /usr/local/bin/drush \
+   https://github.com/drush-ops/drush/releases/download/8.1.17/drush.phar && \
+   # wp-cli (wordpress cli)
    curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
    chmod +x wp-cli.phar && mv wp-cli.phar /usr/local/bin/wp-cli && \
-   mkdir /etc/php/7.0/fpm/pool.d/include.d && \
-   mkdir /etc/php5/fpm/pool.d/include.d && \
+   mkdir /etc/php/7.2/fpm/pool.d/include.d && \
+   mkdir /etc/php/5.6/fpm/pool.d/include.d && \
    # php code quality
    chmod +x /usr/local/bin/php_generic_report && \
    curl -O https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar && \
@@ -188,6 +199,6 @@ ENV \
    APACHE_REMOTEIP_ENABLE="true"               \
    KEEPALIVE_MAX_REQUESTS="10000"          \
    KEEPALIVE_TIMEOUT="650"                 \
-   HEALTHCHECK_PATH="/_healthcheck"        \
-   INFO_PATH="/_info"                      \
+   HEALTHCHECK_PATH="/_healthz"            \
+   INFO_PATH="/_infoz"                     \
    WP_DISABLE_XMLRPC="true"

@@ -5,10 +5,10 @@
         <IfModule setenvif_module>
         SetEnvIfNoCase ^Authorization$ "(.+)" HTTP_AUTHORIZATION=$1
         </IfModule>
-        <LocationMatch "^(/phpfpm-status|{{- HEALTHCHECK_PATH|default("/_healthcheck") }}|{{- INFO_PATH|default("/_info") }})$">
+        <LocationMatch "^(/phpfpm-status|{{- HEALTHCHECK_PATH|default("/_healthz") }}|{{- INFO_PATH|default("/_infoz") }})$">
             RewriteEngine off
             {%- if PHPFPM_ENABLE_TCP == "true" %}
-            SetHandler "proxy:fcgi://{{ PHPFPM_TCP_HOST|default("127.0.0.1") }}:{{ PHPFPM_TCP_PORT|int }}"
+            SetHandler "proxy:fcgi://{{ PHPFPM_TCP_HOST|default("127.2.0.1") }}:{{ PHPFPM_TCP_PORT|int }}"
             {% else %}
             SetHandler "proxy:unix:/var/run/php5-fpm.sock|fcgi://localhost/"
             {%- endif %}
@@ -16,7 +16,7 @@
     
         <FilesMatch ".+\.ph(p[3457]?|t|tml)$">
             {%- if PHPFPM_ENABLE_TCP == "true" %}
-            SetHandler "proxy:fcgi://{{ PHPFPM_TCP_HOST|default("127.0.0.1") }}:{{ PHPFPM_TCP_PORT|int }}"
+            SetHandler "proxy:fcgi://{{ PHPFPM_TCP_HOST|default("127.2.0.1") }}:{{ PHPFPM_TCP_PORT|int }}"
             {%- else %}
             SetHandler "proxy:unix:/var/run/php5-fpm.sock|fcgi://localhost/"
             {%- endif %}

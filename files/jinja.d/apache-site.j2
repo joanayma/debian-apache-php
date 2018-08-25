@@ -51,7 +51,7 @@
 
         SetEnvIf Request_URI "{{ HEALTHCHECK_PATH }}" dontlog
         SetEnvIf Request_URI "/phpfpm-status.*" dontlog
-        SetEnvIf Request_URI "{{ INFO_PATH|default("/_info") }}" dontlog
+        SetEnvIf Request_URI "{{ INFO_PATH|default("/_infoz") }}" dontlog
         SetEnvIf Request_URL "/server-status.*" dontlog
         SetEnvIf Remote_Addr "127\.0\.0\.1" dontlog
 	ErrorLog {{ APACHE_ERRORLOG_PATH|default("/dev/stderr") }}

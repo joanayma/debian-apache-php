@@ -3,7 +3,7 @@
 user = www-data
 group = www-data
 {%- if PHPFPM_ENABLE_TCP == "true" %}
-listen = 127.0.0.1:{{ PHPFPM_TCP_PORT }}
+listen = 127.2.0.1:{{ PHPFPM_TCP_PORT }}
 {%- else %}
 listen = /var/run/php5-fpm.sock
 {%- endif %}
@@ -13,7 +13,7 @@ listen.group = www-data
 ;listen.mode = 0660
 ;listen.acl_users =
 ;listen.acl_groups =
-;listen.allowed_clients = 127.0.0.1
+;listen.allowed_clients = 127.2.0.1
 ; process.priority = -19
 pm = {{ PHPFPM_PROC_MANAGER }}
 pm.max_children = {{ PHPFPM_MAX_CHILDREN }}
@@ -53,4 +53,4 @@ php_admin_value[max_execution_time] = {{ PHP_MAX_EXEC_TIME }}
 php_admin_value[short_open_tag] = true
 {% endif %}{% endif %}
 php_admin_value[max_input_vars] = {{ PHP_MAX_INPUT_VARS }}
-include = /etc/php5/fpm/pool.d/include.d/*.conf
+include = /etc/php/5.6/fpm/pool.d/include.d/*.conf

@@ -7,9 +7,9 @@ LoadModule remoteip_module /usr/lib/apache2/modules/mod_remoteip.so
     # Define which IP's are your frontend proxies that sends
     # the correct X-Forwarded-For headers:
     {% if APACHE_REMOTEIP_RANGE is defined %}
-    RemoteIPInternalProxy 127.0.0.0/8 ::1 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 100.64.0.0/10 35.186.0.0/16 35.191.0.0/16 130.211.0.0/16 {{ APACHE_REMOTEIP_RANGE }}
+    RemoteIPInternalProxy 127.2.0.0/8 ::1 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 100.64.0.0/10 35.186.0.0/16 35.191.0.0/16 130.211.0.0/16 {{ APACHE_REMOTEIP_RANGE }}
     {% else %}
-    RemoteIPInternalProxy 127.0.0.0/8 ::1 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 100.64.0.0/10 35.186.0.0/16 35.191.0.0/16 130.211.0.0/16
+    RemoteIPInternalProxy 127.2.0.0/8 ::1 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 100.64.0.0/10 35.186.0.0/16 35.191.0.0/16 130.211.0.0/16
     {% endif %}
 
 </IfModule>

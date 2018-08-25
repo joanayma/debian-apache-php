@@ -5,7 +5,7 @@ group = www-data
 {%- if PHPFPM_ENABLE_TCP == "true" %}
 listen = 127.2.0.1:{{ PHPFPM_TCP_PORT }}
 {%- else %}
-listen = /var/run/php7.0-fpm.sock
+listen = /var/run/php7.2-fpm.sock
 {%- endif %}
 listen.backlog = 65535
 listen.owner = www-data
@@ -63,4 +63,4 @@ php_admin_value[max_file_uploads] = {{ PHP_MAX_FILE_UPLOADS }}
 {% if PHP_ENABLE_SHORT_OPEN_TAG is defined and 'true' in PHP_ENABLE_SHORT_OPEN_TAG %}
 php_admin_value[short_open_tag] = true
 {% endif %}
-include = /etc/php/7.0/fpm/pool.d/include.d/*.conf
+include = /etc/php/7.2/fpm/pool.d/include.d/*.conf

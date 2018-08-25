@@ -7,7 +7,7 @@
         <LocationMatch "/phpfpm-status">
             RewriteEngine off
             {%- if string(PHPFPM_ENABLE_TCP) == "true" %}
-            ProxyPass "fcgi://{{ PHPFPM_TCP_HOST|default("127.0.0.1") }}:{{ PHPFPM_TCP_PORT|int }}/{{ APACHE_DOCUMENTROOT}}/$1" 
+            ProxyPass "fcgi://{{ PHPFPM_TCP_HOST|default("127.2.0.1") }}:{{ PHPFPM_TCP_PORT|int }}/{{ APACHE_DOCUMENTROOT}}/$1" 
             {% else %}
             ProxyPass "unix:/var/run/php5-fpm.sock|fcgi://localhost" 
             {%- endif %}
@@ -20,7 +20,7 @@
     
         <FilesMatch ".+\.ph(p[3457]?|t|tml)$">
             {%- if string(PHPFPM_ENABLE_TCP) == "true" %}
-            SetHandler "proxy:fcgi://{{ PHPFPM_TCP_HOST|default("127.0.0.1") }}:{{ PHPFPM_TCP_PORT }}/{{ APACHE_DOCUMENTROOT}}/$1"
+            SetHandler "proxy:fcgi://{{ PHPFPM_TCP_HOST|default("127.2.0.1") }}:{{ PHPFPM_TCP_PORT }}/{{ APACHE_DOCUMENTROOT}}/$1"
             {%- else %}
             SetHandler "proxy:unix:/var/run/php5-fpm.sock|fcgi://localhost/"
             {%- endif %}
@@ -47,9 +47,9 @@
         </IfModule>
         <LocationMatch "/phpfpm-status">
             {%- if string(PHPFPM_ENABLE_TCP) == "true" %}
-            ProxyPass "fcgi://{{ PHPFPM_TCP_HOST|default("127.0.0.1") }}:{{ PHPFPM_TCP_PORT|int }}/{{ APACHE_DOCUMENTROOT}}/$1" 
+            ProxyPass "fcgi://{{ PHPFPM_TCP_HOST|default("127.2.0.1") }}:{{ PHPFPM_TCP_PORT|int }}/{{ APACHE_DOCUMENTROOT}}/$1" 
             {% else %}
-            ProxyPass "unix:/var/run/php7.0-fpm.sock|fcgi://localhost" 
+            ProxyPass "unix:/var/run/php7.2-fpm.sock|fcgi://localhost" 
             {%- endif %}
             {%- if MONITOR_PASSWD is defined %}
             Require expr %{QUERY_STRING}  =~ m#password={{ MONITOR_PASSWD }}#
@@ -60,9 +60,9 @@
     
         <FilesMatch ".+\.ph(p[3457]?|t|tml)$">
             {%- if string(PHPFPM_ENABLE_TCP) == "true" %}
-            SetHandler "proxy:fcgi://{{ PHPFPM_TCP_HOST|default("127.0.0.1") }}:{{ PHPFPM_TCP_PORT }}/path/to/your/documentroot/$1"
+            SetHandler "proxy:fcgi://{{ PHPFPM_TCP_HOST|default("127.2.0.1") }}:{{ PHPFPM_TCP_PORT }}/path/to/your/documentroot/$1"
             {%- else %}
-            SetHandler "proxy:unix:/var/run/php7.0-fpm.sock|fcgi://localhost/"
+            SetHandler "proxy:unix:/var/run/php7.2-fpm.sock|fcgi://localhost/"
             {%- endif %}
         </FilesMatch>
         <FilesMatch ".+\.phps$">

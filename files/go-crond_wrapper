@@ -10,4 +10,6 @@ while ([[ $i > 1 ]] && supervisorctl status | grep -v RUNNING) ; do
    sleep 3
 done
 
+exec go-crond --include=/etc/cron.d/ --verbose root:/root/cron www-data:/var/www/cron
+
 exec $@
